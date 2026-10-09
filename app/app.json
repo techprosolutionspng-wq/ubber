@@ -6,12 +6,8 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./icon.png",
-    "splash": {
-      "backgroundColor": "#111111"
-    },
-    "extra": {
-      "serverUrl": "https://ubber-backend.onrender.com"
-    },
+    "splash": { "backgroundColor": "#111111" },
+    "extra": { "serverUrl": "https://ubber-backend.onrender.com" },
     "ios": {
       "bundleIdentifier": "com.ubber.app",
       "infoPlist": {
@@ -25,11 +21,6 @@
       "adaptiveIcon": {
         "foregroundImage": "./adaptive-icon.png",
         "backgroundColor": "#0B2F78"
-      },
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyDummyKeyForOpenStreetMapTiles000000"
-        }
       }
     }
   }
