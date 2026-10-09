@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, Aler
 import RNMapView, { Marker, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { io } from 'socket.io-client';
+import Constants from 'expo-constants';
+
+// Map drawn with free OpenStreetMap tiles (no Google key needed)
 const MapView = ({ children, ...p }) => (
   <RNMapView mapType="none" {...p}>
     <UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maximumZ={19} />
@@ -26,10 +29,12 @@ function useSocket() {
 function useMyLocation() {
   const [loc, setLoc] = useState(null);
   useEffect(() => { (async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') return setLoc(FALLBACK);
-    const p = await Location.getCurrentPositionAsync({});
-    setLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return setLoc(FALLBACK);
+      const p = await Location.getCurrentPositionAsync({});
+      setLoc({ lat: p.coords.latitude, lng: p.coords.longitude });
+    } catch (e) { setLoc(FALLBACK); }
   })(); }, []);
   return loc;
 }
