@@ -8,6 +8,10 @@ jobs:
   build:
     name: Build Android APK
     runs-on: ubuntu-latest
+    # This line tells GitHub to look inside your subfolder for package.json, app.json, and eas.json
+    defaults:
+      run:
+        working-directory: ./ubber
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -15,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
