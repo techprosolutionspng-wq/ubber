@@ -30,7 +30,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
+      - name: Link Expo project
+        run: eas init --non-interactive --force
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       - name: Trigger EAS Android APK Build
         run: eas build --platform android --profile preview --non-interactive --no-wait
         env:
