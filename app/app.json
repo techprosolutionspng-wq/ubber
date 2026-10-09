@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./icon.png",
     "splash": {
       "backgroundColor": "#111111"
     },
@@ -21,6 +22,10 @@
       "package": "com.ubber.app",
       "versionCode": 1,
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "adaptiveIcon": {
+        "foregroundImage": "./adaptive-icon.png",
+        "backgroundColor": "#0B2F78"
+      },
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDummyKeyForOpenStreetMapTiles000000"
