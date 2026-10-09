@@ -1,24 +1,46 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import RNMapView, { Marker, UrlTile } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 import { io } from 'socket.io-client';
 import Constants from 'expo-constants';
 
-// Map drawn with free OpenStreetMap tiles (no Google key needed)
-const MapView = ({ children, ...p }) => (
-  <RNMapView mapType="none" {...p}>
-    <UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maximumZ={19} />
-    {children}
-  </RNMapView>
-);
-
 // Backend URL is set in app.json -> expo.extra.serverUrl
 const SERVER = Constants.expoConfig?.extra?.serverUrl;
-const FALLBACK = { lat: -6.314993, lng: 143.95555 };
-const toLL = p => ({ latitude: p.lat, longitude: p.lng });
+const FALLBACK = { lat: -9.4438, lng: 147.1803 }; // Port Moresby
 const STATUS = { searching: 'Finding a driver…', accepted: 'Driver on the way', arrived: 'Driver has arrived',
   in_progress: 'Trip in progress', completed: 'Trip complete', cancelled: 'Ride cancelled', no_drivers: 'No drivers available' };
+
+// Free OpenStreetMap map via Leaflet (no Google key needed)
+const HTML = `<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>html,body,#m{height:100%;margin:0}</style></head><body><div id="m"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var map=L.map('m').setView([0,0],2);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+var layer=L.layerGroup().addTo(map);var fitted=false;
+map.on('click',function(e){window.ReactNativeWebView.postMessage(JSON.stringify({lat:e.latlng.lat,lng:e.latlng.lng}));});
+window.setMarkers=function(list,focus){
+  layer.clearLayers();
+  list.forEach(function(m){L.circleMarker([m.lat,m.lng],{radius:10,color:'#fff',weight:3,fillColor:m.color,fillOpacity:1}).bindTooltip(m.label||'').addTo(layer);});
+  if(!fitted&&focus){map.setView([focus.lat,focus.lng],15);fitted=true;}
+};
+</script></body></html>`;
+
+function MapWeb({ markers, focus, onTap }) {
+  const ref = useRef(null), ready = useRef(false);
+  const push = () => ref.current?.injectJavaScript(
+    `window.setMarkers(${JSON.stringify(markers)},${JSON.stringify(focus)});true;`);
+  useEffect(() => { if (ready.current) push(); }, [JSON.stringify(markers), focus?.lat, focus?.lng]);
+  return (
+    <WebView ref={ref} style={{ flex: 1 }} originWhitelist={['*']}
+      source={{ html: HTML, baseUrl: SERVER }} javaScriptEnabled domStorageEnabled
+      onLoadEnd={() => { ready.current = true; push(); }}
+      onMessage={e => { try { onTap && onTap(JSON.parse(e.nativeEvent.data)); } catch (_) {} }} />
+  );
+}
 
 function useSocket() {
   const ref = useRef(null);
@@ -54,12 +76,12 @@ function Rider({ socket }) {
   if (!loc) return <Text style={s.center}>Locating…</Text>;
   const active = ride && !['completed', 'cancelled', 'no_drivers'].includes(ride.status);
   const reset = () => { setRide(null); setDropoff(null); setQuote(null); setDriverLoc(null); };
+  const markers = [{ ...loc, color: '#2980b9', label: 'You' }];
+  if (dropoff) markers.push({ ...dropoff, color: '#e74c3c', label: 'Drop-off' });
+  const dl = driverLoc || ride?.driver?.loc;
+  if (dl) markers.push({ ...dl, color: '#27ae60', label: 'Driver' });
   return (<View style={{ flex: 1 }}>
-    <MapView style={{ flex: 1 }} initialRegion={{ ...toLL(loc), latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-      showsUserLocation onPress={e => !ride && setDropoff({ lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}>
-      {dropoff && <Marker coordinate={toLL(dropoff)} title="Drop-off" pinColor="red" />}
-      {(driverLoc || ride?.driver?.loc) && <Marker coordinate={toLL(driverLoc || ride.driver.loc)} title="Driver" pinColor="blue" />}
-    </MapView>
+    <MapWeb markers={markers} focus={loc} onTap={p => !ride && setDropoff(p)} />
     <View style={s.panel}>
       {!ride && <>
         <Text style={s.h}>{dropoff ? 'Confirm ride' : 'Tap the map to set your drop-off'}</Text>
@@ -95,11 +117,10 @@ function Driver({ socket, name }) {
   if (!loc) return <Text style={s.center}>Locating…</Text>;
   const next = { accepted: ['I\'ve arrived', 'ride:arrived'], arrived: ['Start trip', 'ride:start'], in_progress: ['Complete trip', 'ride:complete'] }[ride?.status];
   const live = ride && !['completed', 'cancelled'].includes(ride.status);
+  const markers = [{ ...loc, color: '#2980b9', label: 'You' }];
+  if (ride) { markers.push({ ...ride.pickup, color: '#f39c12', label: 'Pickup' }); markers.push({ ...ride.dropoff, color: '#e74c3c', label: 'Drop-off' }); }
   return (<View style={{ flex: 1 }}>
-    <MapView style={{ flex: 1 }} initialRegion={{ ...toLL(loc), latitudeDelta: 0.05, longitudeDelta: 0.05 }} showsUserLocation>
-      {ride && <Marker coordinate={toLL(ride.pickup)} title="Pickup" />}
-      {ride && <Marker coordinate={toLL(ride.dropoff)} title="Drop-off" pinColor="red" />}
-    </MapView>
+    <MapWeb markers={markers} focus={loc} />
     <View style={s.panel}>
       {!live && !offer && <>
         <Text style={s.h}>{ride ? STATUS[ride.status] : online ? 'Waiting for ride requests…' : 'You are offline'}</Text>
