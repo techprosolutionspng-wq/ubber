@@ -20,7 +20,12 @@
     "android": {
       "package": "com.ubber.app",
       "versionCode": 1,
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDummyKeyForOpenStreetMapTiles000000"
+        }
+      }
     }
   }
 }
