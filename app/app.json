@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "extra": {
-      "serverUrl": "https://ubber-backend.onrender.com"
+      "serverUrl": "https://onrender.com"
     },
     "ios": {
       "bundleIdentifier": "com.ubber.app",
@@ -17,12 +17,7 @@
     "android": {
       "package": "com.ubber.app",
       "versionCode": 1,
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
-      "config": {
-        "googleMaps": {
-          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
-        }
-      }
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     }
   }
 }
