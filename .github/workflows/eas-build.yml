@@ -22,7 +22,8 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-          cache: ""
+          eas-cache: false
+          packager: npm
 
       - name: Install dependencies
         run: npm install
