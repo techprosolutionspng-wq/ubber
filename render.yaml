@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ubber-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: CURRENCY
+        value: USD
