@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import RNMapView, { Marker, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { io } from 'socket.io-client';
-import Constants from 'expo-constants';
+const MapView = ({ children, ...p }) => (
+  <RNMapView mapType="none" {...p}>
+    <UrlTile urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maximumZ={19} />
+    {children}
+  </RNMapView>
+);
 
 // Backend URL is set in app.json -> expo.extra.serverUrl
 const SERVER = Constants.expoConfig?.extra?.serverUrl;
