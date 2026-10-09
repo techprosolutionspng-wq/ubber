@@ -7,7 +7,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "extra": {
-      "serverUrl": "https://onrender.com"
+      "serverUrl": "https://onrender.com",
+      "eas": {
+        "projectId": "7e7b2fff-4ac2-4f44-9cd7-44cce18de104"
+      }
     },
     "ios": {
       "bundleIdentifier": "com.ubber.app",
