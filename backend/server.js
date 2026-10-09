@@ -4,7 +4,8 @@ const app = express(); app.use(cors(), express.json());
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-const RATE = { base: 3, perKm: 1.2, perMin: 0.3, min: 5, currency: process.env.CURRENCY || 'USD' };
+// Placeholder kina rates: adjust to real local taxi fares
+const RATE = { base: 8, perKm: 3, perMin: 0.5, min: 12, currency: process.env.CURRENCY || 'PGK' };
 const OFFER_TIMEOUT_MS = 15000;
 const drivers = new Map(); // socket.id -> {id,name,loc,online,busy}
 const rides = new Map();   // rideId -> ride
