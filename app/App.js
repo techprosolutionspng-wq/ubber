@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 
 // Backend URL is set in app.json -> expo.extra.serverUrl
 const SERVER = Constants.expoConfig?.extra?.serverUrl;
-const FALLBACK = { lat: -9.4438, lng: 147.1803 }; // Port Moresby
+const FALLBACK = { lat: -6.314993, lng: 143.95555 };
 const STATUS = { searching: 'Finding a driver…', accepted: 'Driver on the way', arrived: 'Driver has arrived',
   in_progress: 'Trip in progress', completed: 'Trip complete', cancelled: 'Ride cancelled', no_drivers: 'No drivers available' };
 
